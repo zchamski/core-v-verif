@@ -36,7 +36,7 @@ export NUM_JOBS=24
 if ! [ -n "$CVA6_REPO" ]; then
   CVA6_REPO="https://github.com/openhwgroup/cva6.git"
   CVA6_BRANCH="master"
-  CVA6_HASH="75807530f26ba9a0ca501e9d3a6575ec375ed7ab"
+  CVA6_HASH="56ccf8089e80e5c7950038cad5796e50c64aa0c2"
   CVA6_PATCH=
 fi
 echo $CVA6_REPO
