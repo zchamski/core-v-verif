@@ -373,6 +373,7 @@ def gcc_compile(test_list, output_dir, isa, mabi, opts, debug_cmd, linker):
       if not re.search('mabi', cmd):
         cmd += (" -mabi=%s" % mabi)
       logging.info("Compiling %s" % asm)
+      logging.info("  >>> running command: " + cmd)
       run_cmd_output(cmd.split(), debug_cmd = debug_cmd)
       elf2bin(elf, binary, debug_cmd)
 
@@ -420,6 +421,7 @@ def run_assembly(asm_test, iss_yaml, isa, target, mabi, gcc_opts, iss_opts, outp
                       gcc_opts, elf))
   cmd += (" -march=%s" % isa)
   cmd += (" -mabi=%s" % mabi)
+  logging.info("  >>> running command: " + cmd)
   run_cmd_output(cmd.split(), debug_cmd = debug_cmd)
   elf2bin(elf, binary, debug_cmd)
   log_list = []
@@ -555,6 +557,7 @@ def run_c(c_test, iss_yaml, isa, target, mabi, gcc_opts, iss_opts, output_dir,
                       linker, gcc_opts, elf))
   cmd += (" -march=%s" % isa)
   cmd += (" -mabi=%s" % mabi)
+  logging.info("  >>> running command: " + cmd)
   run_cmd_output(cmd.split(), debug_cmd = debug_cmd)
   elf2bin(elf, binary, debug_cmd)
   log_list = []
