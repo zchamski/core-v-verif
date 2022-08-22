@@ -75,7 +75,7 @@ vcs-testharness:
 	grep $(isspostrun_opts) ./trace_rvfi_hart_00.dasm
 
 veri-testharness:
-	make -C $(path_var) verilate target=$(target) defines=$(subst +define+,,$(isscomp_opts))
+	make -C $(path_var) verilate target=$(target) DEBUG=1 defines=$(subst +define+,,$(isscomp_opts))
 	$(path_var)/work-ver/Variane_testharness $(elf) $(issrun_opts)
 	$(tool_path)/spike-dasm < ./trace_rvfi_hart_00.dasm > $(log)
 	grep $(isspostrun_opts) ./trace_rvfi_hart_00.dasm
