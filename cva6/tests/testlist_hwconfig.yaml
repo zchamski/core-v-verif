@@ -38,7 +38,7 @@
   needs:
     - xlen: 64
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv64ui/add.S
 
 - test: rv32ui-p-add
@@ -46,7 +46,7 @@
   needs:
     - xlen: 32
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv32ui/add.S
 
 - test: rv64ui-v-add
@@ -56,7 +56,7 @@
     - fpu: 1
     - c_ext: 1
   path_var: TESTS_PATH
-  gcc_opts: "-DENTROPY=0x1 -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ <path_var>/riscv-tests/env/v/entry.S <path_var>/riscv-tests/env/v/vm.c <path_var>/riscv-tests/env/v/string.c -I<path_var>/riscv-tests/env/v/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-DENTROPY=0x1 -static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ <path_var>/riscv-tests/env/v/entry.S <path_var>/riscv-tests/env/v/vm.c <path_var>/riscv-tests/env/v/string.c -I<path_var>/riscv-tests/env/v/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv64ui/add.S
 
 - test: rv32ui-v-add
@@ -66,7 +66,7 @@
     - fpu: 1
     - c_ext: 1
   path_var: TESTS_PATH
-  gcc_opts: "-DENTROPY=0x1 -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ <path_var>/riscv-tests/env/v/entry.S <path_var>/riscv-tests/env/v/vm.c <path_var>/riscv-tests/env/v/string.c -I<path_var>/riscv-tests/env/v/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-DENTROPY=0x1 -static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ <path_var>/riscv-tests/env/v/entry.S <path_var>/riscv-tests/env/v/vm.c <path_var>/riscv-tests/env/v/string.c -I<path_var>/riscv-tests/env/v/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv32ui/add.S
 
 - test: rv64ui-p-sw
@@ -74,7 +74,7 @@
   needs:
     - xlen: 64
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv64ui/sw.S
 
 - test: rv32ui-p-sw
@@ -82,7 +82,7 @@
   needs:
     - xlen: 32
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv32ui/sw.S
 
 - test: rv64ui-p-lw
@@ -90,7 +90,7 @@
   needs:
     - xlen: 64
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv64ui/lw.S
 
 - test: rv32ui-p-lw
@@ -98,7 +98,7 @@
   needs:
     - xlen: 32
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv32ui/lw.S
 
 - test: rv64um-p-div
@@ -106,7 +106,7 @@
   needs:
     - xlen: 64
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv64um/div.S
 
 - test: rv32um-p-div
@@ -114,7 +114,7 @@
   needs:
     - xlen: 32
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv32um/div.S
 
 - test: rv64um-p-mul
@@ -122,7 +122,7 @@
   needs:
     - xlen: 64
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv64um/mul.S
 
 - test: rv32um-p-mul
@@ -130,7 +130,7 @@
   needs:
     - xlen: 32
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv32um/mul.S
 
 - test: rv64uf-p-fcmp
@@ -139,7 +139,7 @@
     - xlen: 64
     - fpu: 1
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv64uf/fcmp.S
 
 - test: rv32uf-p-fcmp
@@ -148,7 +148,7 @@
     - xlen: 32
     - fpu: 1
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv32uf/fcmp.S
 
 - test: rv64ua-p-amomax_d
@@ -157,7 +157,7 @@
     - xlen: 64
     - a_ext: 1
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv64ua/amomax_d.S
 
 - test: rv32ua-p-amomax_w
@@ -166,7 +166,7 @@
     - xlen: 32
     - a_ext: 1
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv32ua/amomax_w.S
 
 - test: rv64mi-p-csr
@@ -174,7 +174,7 @@
   needs:
     - xlen: 64
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv64mi/csr.S
 
 - test: rv32mi-p-csr
@@ -182,5 +182,5 @@
   needs:
     - xlen: 32
   path_var: TESTS_PATH
-  gcc_opts: "-static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
+  gcc_opts: "-static -misa-spec=2.2 -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -I<path_var>/riscv-tests/isa/macros/scalar/ -I<path_var>/riscv-tests/env/p/ -I<path_var>/riscv-tests/riscv-target/spike/"
   asm_tests: <path_var>/riscv-tests/isa/rv32mi/csr.S
