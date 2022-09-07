@@ -130,10 +130,21 @@ ALL_UVM_FLAGS           = -lca -sverilog +incdir+/opt/synopsys/vcs-mx/O-2018.09-
 	  /opt/synopsys/vcs-mx/O-2018.09-SP1-1/etc/uvm/src/uvm_pkg.sv +UVM_VERBOSITY=UVM_MEDIUM -ntb_opts uvm-1.2 -timescale=1ns/1ps \
 	  -assert svaext -race=all -ignore unique_checks -full64 -q +incdir+/opt/synopsys/vcs-mx/O-2018.09-SP1-1/etc/uvm/src \
 	  +incdir+$(CORE_V_VERIF)/$(CV_CORE_LC)/env/uvme +incdir+$(CORE_V_VERIF)/$(CV_CORE_LC)/tb/uvmt \
-	  $(if $(VERDI), -debug_access+all -kdb,)
+	  $(if $(DEBUG), -debug_access+all $(if $(VERDI), -kdb))
+
 ALL_SIMV_UVM_FLAGS      = -licwait 20 -l +ntb_random_seed=1 \
 		-sv_lib $(CORE_V_VERIF)/lib/dpi_dasm/lib/Linux64/libdpi_dasm +signature=I-ADD-01.signature_output \
-		+UVM_TESTNAME=uvmt_cva6_firmware_test_c $(if $(VERDI), -gui -do $(CORE_V_VERIF)/cva6/sim/init_uvm.do,)
+		+UVM_TESTNAME=uvmt_cva6_firmware_test_c
+
+ifneq ($(DEBUG),)		# If RTL DEBUG support requested
+ifneq ($(VERDI),)		#   If VERDI interactive mode requested, use GUI and do not run simulation
+  ALL_SIMV_UVM_FLAGS	+= \
+		-gui -do $(CORE_V_VERIF)/cva6/sim/init_uvm.do
+else				#   else use CLI mode and appropriate batch dump controls
+  ALL_SIMV_UVM_FLAGS	+= \
+		-ucli -do $(CORE_V_VERIF)/cva6/sim/$(if $(DEBUG_COMPACT),init_run_uvm.do,init_run_uvm_vpd.do)
+endif
+endif
 
 dpi-library = $(VCS_WORK_DIR)/work-dpi
 dpi_build:
@@ -158,14 +169,18 @@ vcs_uvm_run:
 	++$(elf) \
 	+PRELOAD=$(elf) \
 	-sv_lib $(dpi-library)/ariane_dpi \
-	$(cov-run-opt) $(issrun_opts)&& \
-	mv $(VCS_WORK_DIR)/trace_rvfi_hart_00.dasm $(CORE_V_VERIF)/cva6/sim/
+	$(cov-run-opt) $(issrun_opts) && \
+	mv $(VCS_WORK_DIR)/trace_rvfi_hart_00.dasm $(CORE_V_VERIF)/cva6/sim/ && \
+	{ [ -z "`ls $(VCS_WORK_DIR)/*.{fsdb,vpd}`" ] || \
+	  for i in `ls $(VCS_WORK_DIR)/*.{fsdb,vpd}` ; do mv $$i $(CORE_V_VERIF)/cva6/sim/`basename $$i` ; done || \
+	  true ; }
 
 vcs-uvm:
 	make vcs_uvm_comp
 	make vcs_uvm_run
 	$(tool_path)/spike-dasm < ./trace_rvfi_hart_00.dasm > $(log)
 	grep $(isspostrun_opts) ./trace_rvfi_hart_00.dasm
+	for i in `ls *.{fsdb,vpd}` ; do mv $$i `dirname $(log)`/`basename $(log) .log`.$(target).$$i ; done || true
 
 generate_cov_dash:
 	urg -dir $(VCS_WORK_DIR)/simv.vdb
@@ -182,6 +197,7 @@ clean_all: vcs_clean_all
 	rm -f *.txt
 	rm -f trace*.log
 	rm -f trace*.dasm
+	rm -f *.vpd *.fsdb
 
 help:
 	@echo "Shell environment:"
