@@ -25,6 +25,10 @@ FLIST_TB   := $(CVA6_TB_DIR)/Flist.cva6_tb
 target     ?= cv64a6_imafdc_sv39
 FLIST_CORE := $(CVA6_REPO_DIR)/core/Flist.$(target)
 
+# CAUTION; To keep default values empty, there shall be no whitespace after each ?= below.
+DEBUG		?=
+DEBUG_FAST	?=
+DEBUG_COMPACT   ?=
 VERDI           ?=
 path-var        ?=
 tool_path       ?=
@@ -33,6 +37,9 @@ issrun_opts     ?=
 isspostrun_opts ?=
 log             ?=
 variant         ?=
+
+# Make these variables available to sub-Makefiles.
+export DEBUG DEBUG_FAST DEBUG_COMPACT
 
 TESTNAME := $(shell basename -s .o $(elf))
 
@@ -76,9 +83,11 @@ vcs-testharness:
 
 veri-testharness:
 	make -C $(path_var) verilate target=$(target) defines=$(subst +define+,,$(isscomp_opts))
-	$(path_var)/work-ver/Variane_testharness $(elf) $(issrun_opts)
+	$(path_var)/work-ver/Variane_testharness $(elf) $(issrun_opts) +trace $(if $(DEBUG_COMPACT), -f verilator.fst,) $(if $(DEBUG_FAST), -v verilator.vcd)
 	$(tool_path)/spike-dasm < ./trace_rvfi_hart_00.dasm > $(log)
+	# If present, move default trace files to per-test directory.
 	[ ! -f verilator.fst ] || mv verilator.fst `dirname $(log)`/`basename $(log) .log`.$(target).fst
+	[ ! -f verilator.vcd ] || mv verilator.vcd `dirname $(log)`/`basename $(log) .log`.$(target).vcd
 	grep $(isspostrun_opts) ./trace_rvfi_hart_00.dasm
 
 ###############################################################################
