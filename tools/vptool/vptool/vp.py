@@ -30,7 +30,7 @@ import shutil
 import hashlib
 
 # PyYAML import: Use C backend (libyaml) if available.
-from yaml import load, dump
+import yaml
 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -1743,6 +1743,14 @@ class MyMain:
                                     "wb",
                                 ) as output:
                                     pickle.dump(ip_elt, output, 0)
+                                with open(
+                                    save_dir
+                                    + "/VP_IP"
+                                    + str(ip_elt[1].ip_num).zfill(3)
+                                    + ".yaml",
+                                    "w",
+                                ) as yaml_output:
+                                    yaml.dump(ip_elt[1], yaml_output)
                         if saved_ip_str:
                             tkinter.messagebox.showinfo(
                                 "Info",
@@ -2227,8 +2235,8 @@ def __generate_option_parser():
 # Load YAML configuration if available.
 try:
     with open(os.path.join(os.path.dirname(__file__), YAML_CONFIG_FILE), "r") as f:
-        vp_config.init_yaml_config(load(f, Loader=Loader))
-        # print("YAML config = \n" + dump(vp_config.yaml_config, Dumper=Dumper))
+        vp_config.init_yaml_config(yaml.safe_load(f))
+        print("YAML config = \n" + yaml.dump(vp_config.yaml_config, Dumper=yaml.Dumper))
 except Exception as e:
     print(
         "Cannot load YAML configuration file '%s' (exception: %s)"
