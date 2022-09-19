@@ -95,14 +95,14 @@ spike:
 # testharness specific commands, variables
 ###############################################################################
 vcs-testharness:
-	make -C $(path_var) vcs_build target=$(target) defines=$(subst +define+,,$(isscomp_opts))
-	$(path_var)/work-vcs/simv $(if $(VERDI), -verdi -do $(path_var)/init_testharness.do,) +permissive -sv_lib $(path_var)/work-dpi/ariane_dpi +PRELOAD=$(elf) +permissive-off ++$(elf) $(issrun_opts)
+	time -f "real %E user %U sys %S" make -C $(path_var) vcs_build target=$(target) defines=$(subst +define+,,$(isscomp_opts))
+	time -f "real %E user %U sys %S" $(path_var)/work-vcs/simv $(if $(VERDI), -verdi -do $(path_var)/init_testharness.do,) +permissive -sv_lib $(path_var)/work-dpi/ariane_dpi +PRELOAD=$(elf) +permissive-off ++$(elf) $(issrun_opts)
 	$(tool_path)/spike-dasm < ./trace_rvfi_hart_00.dasm > $(log)
 	grep $(isspostrun_opts) ./trace_rvfi_hart_00.dasm
 
 veri-testharness:
-	make -C $(path_var) verilate target=$(target) defines=$(subst +define+,,$(isscomp_opts))
-	$(path_var)/work-ver/Variane_testharness $(elf) $(issrun_opts) $(if $(TRACE_COMPACT), -f verilator.fst,) $(if $(TRACE_FAST), -v verilator.vcd)
+	time -f "real %E user %U sys %S" make -C $(path_var) verilate target=$(target) defines=$(subst +define+,,$(isscomp_opts))
+	time -f "real %E user %U sys %S" $(path_var)/work-ver/Variane_testharness $(elf) $(issrun_opts) $(if $(TRACE_COMPACT), -f verilator.fst,) $(if $(TRACE_FAST), -v verilator.vcd)
 	$(tool_path)/spike-dasm < ./trace_rvfi_hart_00.dasm > $(log)
 	# If present, move default trace files to per-test directory.
 	[ ! -f verilator.fst ] || mv verilator.fst `dirname $(log)`/`basename $(log) .log`.$(target).fst
@@ -184,7 +184,7 @@ dpi_build:
 vcs_uvm_comp: dpi_build
 	@echo "[VCS] Building Model"
 	mkdir -p $(VCS_WORK_DIR)
-	cd $(VCS_WORK_DIR) && vcs $(ALL_UVM_FLAGS) \
+	cd $(VCS_WORK_DIR) && time -f "real %E user %U sys %S" vcs $(ALL_UVM_FLAGS) \
 	  -f $(FLIST_CORE) -f $(FLIST_TB) \
 	  -f $(CVA6_UVMT_DIR)/uvmt_cva6.flist \
 	  $(cov-comp-opt) $(isscomp_opts)\
@@ -193,7 +193,7 @@ vcs_uvm_comp: dpi_build
 vcs_uvm_run:
 	$(if $(TRACE_FAST), unset VERDI_HOME ;) \
 	cd $(VCS_WORK_DIR)/ && \
-	$(VCS_WORK_DIR)/simv ${ALL_SIMV_UVM_FLAGS} \
+	time -f "real %E user %U sys %S" $(VCS_WORK_DIR)/simv ${ALL_SIMV_UVM_FLAGS} \
 	++$(elf) \
 	+PRELOAD=$(elf) \
 	-sv_lib $(dpi-library)/ariane_dpi \
