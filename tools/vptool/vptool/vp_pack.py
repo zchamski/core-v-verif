@@ -132,7 +132,7 @@ class Item:
             if len(matches) == 0:
                 return "<UNKNOWN>"
             return matches[0]
-        return "N/A (unsupported field '%s')" % attr
+        return f"N/A (unsupported field '{attr}')"
 
     def preserve_linebrs(self, text, indent="  "):
         """
@@ -144,29 +144,19 @@ class Item:
 
     def __str__(self):
         return0 = ""
-        return0 += format("#### Item: %s\n\n" % self.name)
-        return0 += format("* **Requirement location:** %s\n" % self.purpose)
-        return0 += format(
-            "* **Feature Description**\n%s\n" % self.preserve_linebrs(self.description)
-        )
-        return0 += format(
-            "* **Verification Goals**\n%s\n" % self.preserve_linebrs(self.verif_goals)
-        )
-        return0 += format("* **Pass/Fail Criteria:** %s\n" % self.attrval2str("pfc"))
-        return0 += format("* **Test Type:** %s\n" % self.attrval2str("test_type"))
-        return0 += format(
-            "* **Coverage Method:** %s\n" % self.attrval2str("cov_method")
-        )
-        return0 += format("* **Applicable Cores:** %s\n" % self.attrval2str("cores"))
-        return0 += format(
-            "* **Unique verification tag:** %s\n" % normalize_tag(self.tag)
-        )
+        return0 += f"#### Item: {self.name}\n\n"
+        return0 += f"* **Requirement location:** {self.purpose}\n"
+        return0 += f"* **Feature Description**\n{self.preserve_linebrs(self.description)}\n"
+        return0 += f"* **Verification Goals**\n{self.preserve_linebrs(self.verif_goals)}\n"
+        return0 += f"* **Pass/Fail Criteria:** {self.attrval2str('pfc')}\n"
+        return0 += f"* **Test Type:** {self.attrval2str('test_type')}\n"
+        return0 += f"* **Coverage Method:** {self.attrval2str('cov_method')}\n"
+        return0 += f"* **Applicable Cores:** {self.attrval2str('cores')}\n"
+        return0 += f"* **Unique verification tag:** {normalize_tag(self.tag)}\n"
         if self.coverage_loc:
-            return0 += format("* **Link to Coverage:** %s\n" % self.coverage_loc)
+            return0 += f"* **Link to Coverage:** {self.coverage.loc}\n"
         if self.comments:
-            return0 += format(
-                "* **Comments**\n%s\n" % self.preserve_linebrs(self.comments)
-            )
+            return0 += f"* **Comments**\n{self.preserve_linebrs(self.comments)}\n"
         return return0
 
     def __del__(self):
@@ -239,7 +229,7 @@ class Prop:
         self.rfu_dict = {}
 
     def __str__(self):
-        return format("### Sub-feature: %s\n\n" % (self.name))
+        return f"### Sub-feature: {self.name}\n\n"
 
     def prop_clone(self):
         """Clone an existing sub-feature."""
@@ -366,11 +356,11 @@ class Ip:
         self.rfu_list_1 = []
 
     def __str__(self):
-        return format("## Feature: %s\n\n" % (self.name))
+        return f"## Feature: {self.name}\n\n"
 
     def add_property(self, name, custom_num=""):
         """Add a new sub-feature to current feature."""
-        if name in list(self.prop_list.keys()):
+        if name in self.prop_list:
             print("Property already exists")
             feedback = 0
         else:
