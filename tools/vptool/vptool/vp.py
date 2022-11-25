@@ -171,10 +171,19 @@ class MyListWidget(ttk.LabelFrame):
         self.MasterClass = MasterClass
 
     def setCurrent(self, event):
+        """
+        Set current element in list to be the one that is the nearest
+        to the Y coord of mouse event.
+        """
         self.curIndex = self.wlist.nearest(event.y)
         self.selection_to_shift = self.get_multiple_selection()
 
     def shiftSelection(self, event):
+        """
+        Shift selected elements of list.
+        Should be removed as it modifies element order and can modify their
+        numbering.
+        """
         if self.enable_reordering:
             i = self.wlist.nearest(event.y)
             lst_to_move = []
@@ -192,16 +201,24 @@ class MyListWidget(ttk.LabelFrame):
             ## end reorder list section
 
     def __del__(self):
-        """prefer destroy() inherited function to kill this widget, __del__ func is not reliable"""
+        """
+        Prefer destroy() inherited function to kill this widget as __del__ func
+        is not reliable.
+        """
         print("destroy")
         self.destroy()
         ttk.LabelFrame.__del__(self)
 
     def get_selection(self):
+        """
+        Return the first element of the current selection.
+        FIXME: What should be returned if the selection is empty?
+        """
         if self.wlist.curselection():
             return self.wlist.get(int(self.wlist.curselection()[0]))
 
     def get_multiple_selection(self, index=1):
+        """Return the list of selected elements, or [] if no elements were selected."""
         mult_selection_list = []
         for elt in self.wlist.curselection():
             if index:
@@ -211,12 +228,19 @@ class MyListWidget(ttk.LabelFrame):
         return mult_selection_list
 
     def _gconfigure(self, reflist):
+        """
+        Set up current element list:
+        - Configure scrollbar
+        - Configure widget list attributes
+        - Insert content of REFLIST as elements of current list.
+        """
         self.sbar.config(command=self.wlist.yview)
         self.wlist.config(yscrollcommand=self.sbar.set, bd=2)
         for index in range(len(reflist)):
             self.wlist.insert(index, reflist[index])
 
     def gcolor(self, color_dict):
+        """Set up colors of the current list according to lock status/owners."""
         # ZC FIXME TODO: The handling of the selection fg/bg colors appears to be incorrect.
         current_selection = self.get_selection()
         for index, ip_name in enumerate(self._inlist):
@@ -235,6 +259,7 @@ class MyListWidget(ttk.LabelFrame):
                     self.wlist.config(selectforeground="black")
 
     def pack(self, side, expand, padx, pady):
+        """Set the layout of the current widget."""
         self.sbar.pack(side="right", fill="y")
         self.wlist.pack(side="left", expand="yes", fill="both")
         self.bdel.pack(side="bottom", anchor="s", fill="x")
@@ -250,18 +275,22 @@ class MyListWidget(ttk.LabelFrame):
         )
 
     def badd_action(self):
+        """Callback for button_pressed event of the 'Add' button"""
         if ismethod(self.baddfunc):
-            self.baddfunc()  # execute external function before customization
+            self.baddfunc()
 
     def bdel_action(self):
+        """Callback for button_pressed event of the 'Del' button"""
         if ismethod(self.bdelfunc):
             self.bdelfunc()  # execute external function before customization
 
     def spin_action(self):
+        """Callback for button_pressed event of the spin selector"""
         if ismethod(self.spinfunc):
             self.spinfunc()  # execute external function before customization
 
     def update_list(self, ulist, color_dict="", index=0):
+        """Update view of element list according to current model state."""
         self.wlist.delete(0, tk.END)
         self._inlist = ulist
         self._gconfigure(ulist)
@@ -276,6 +305,7 @@ class MyListWidget(ttk.LabelFrame):
             self.bdel["state"] = "disabled"
 
     def freeze(self, only_button="no"):
+        """Disable modification of view+model of the elem list widget."""
         if only_button == "no":
             self.wlist.configure(state="disabled")
         self.badd["state"] = "disabled"
@@ -284,6 +314,7 @@ class MyListWidget(ttk.LabelFrame):
         # self.spin_vip.configure(state='disabled')
 
     def unfreeze(self):
+        """Enable modification of view+model of the elem list widget."""
         self.wlist.configure(state="normal")
         self.badd["state"] = "normal"
         self.bdel["state"] = self.bdel_default
@@ -291,26 +322,34 @@ class MyListWidget(ttk.LabelFrame):
         # self.spin_vip.configure(state='normal',bg='lightgrey')
 
     def set_reordering(self):
+        """
+        Enable reordering of elements in current list.
+        FIXME: Reordering needs special care to preserve monotonicity of tags.
+        """
         self.wlist.configure(selectmode="extended")
         self.enable_reordering = 1
 
     def unset_reordering(self):
+        """Disable reordering of elements in current list."""
         self.wlist.configure(selectmode="browse")
         self.enable_reordering = 0
 
     def get_filter(self):
+        """Get the current value of the (general) filter spin selector."""
         # if self.spin_value:
         #   return self.spin.get()
         # else:
         return "ALL"
 
     def get_filter_vip(self):
+        """Get the current value of the Verif-In-Proggress filter spin selector."""
         # if self.spin_vip_value:
         #   return self.spin_vip.get()
         # else:
         return "ALL"
 
     def get_index(self):
+        """Get the index of the first selected element or None if no element is selected."""
         if self.wlist.curselection():
             return self.wlist.curselection()[0]
         else:
@@ -318,6 +357,7 @@ class MyListWidget(ttk.LabelFrame):
 
 
 class MyMenuWidget(tk.Menu):
+    """Definition of the customized menu widget class"""
     def __init__(
         self,
         master=None,
@@ -355,6 +395,7 @@ class MyMenuWidget(tk.Menu):
         self.pref_color_func = pref_color_func
 
     def menu_config(self, master):
+        """Set up content and layout of the indivvidual sub-menus."""
         self.filemenu.add_command(label="--- Load       ", command=self.load)
         self.filemenu.add_command(label="--- Save       ", command=self.save)
         self.filemenu.add_command(label="--- Save As    ", command=self.save_as)
@@ -427,36 +468,48 @@ class MyMenuWidget(tk.Menu):
         self.add_cascade(label="Preferences  ", menu=self.prefmenu)
 
     def load(self):
+        """
+        Menu callback to load a database (or a set thereof, if running in split DB mode).
+        Enable 'Save' entry if load was successful.
+        """
         if ismethod(self.loadfunc):
             if self.loadfunc() == "yes":
                 self.filemenu.entryconfig("--- Save       ", state="normal")
 
     def save(self):
+        """Menu callback to save a database (or set thereof, if running in split DB mode)."""
         if ismethod(self.savfunc):
             self.savfunc()
 
     def save_as(self):
+        """
+        Menu callback to save a database (or a set thereof, if running in split DB mode)
+        under a new path.
+        Enables 'Save' entry if load was successful.
+        """
         if ismethod(self.savfunc):
             if self.savfunc(save_as="yes") == "yes":
                 self.filemenu.entryconfig("--- Save       ", state="normal")
 
     def close(self):
+        """
+        Menu callback to close a database (or a set thereof, if running in split DB mode).
+        Disables 'Save' entry if load was successful.
+        """
         if ismethod(self.closefunc):
             if self.closefunc() == "yes":
                 self.filemenu.entryconfig("--- Save       ", state="disabled")
 
     def exitfunc(self):
+        """Menu callback to quit the application.  Runs the exitfunc if available."""
         if ismethod(self.exitfunc):
             if self.exitfunc() == "yes":
                 self.exitfunc
         else:
             self.master.quit()
 
-    def populate_ip(self):
-        if ismethod(self.populatefunc):
-            self.populatefunc()
-
     def set_prop_custom(self):
+        """Menu callback to set a custom prefix value for subfeature numbering."""
         global CUSTOM_NUM
         change_custom_name = tkinter.simpledialog.askstring(
             "Section Numbering",
@@ -468,10 +521,15 @@ class MyMenuWidget(tk.Menu):
             CUSTOM_NUM = change_custom_name
 
     def renamefunc(self):
+        """Menu callback to rename a Feature."""
         if ismethod(self.renamefunc):
             self.renamefunc()
 
     def reordering(self):
+        """
+        Menu callback to enable/disable reordering of elements in Feature
+        and Sub-feature lists.
+        """
         if self.enable_reordering.get():
             self.MasterClass.ip_widget.set_reordering()
             self.MasterClass.prop_widget.set_reordering()
@@ -483,34 +541,42 @@ class MyMenuWidget(tk.Menu):
     #   if ismethod(self.exportIpStatfunc):
     #       self.exportIpStatfunc()
     def lockfunc(self):
+        """Menu callback to lock/unlock a Feature. """
         if ismethod(self.lockfunc):
             self.lockfunc()
 
     def duplicate_itemfunc(self):
+        """Menu callback to duplicate an item."""
         if ismethod(self.duplicate_itemfunc):
             self.duplicate_itemfunc(insert="no")
 
     def insert_itemfunc(self):
+        """Menu callback to insert an item."""
         if ismethod(self.duplicate_itemfunc):
             self.duplicate_itemfunc(insert="yes")
 
     def disable_edit(self):
+        """Menu callback to disable edit sub-menu."""
         self.editmenu.entryconfigure(0, state=tk.DISABLED)
         self.editmenu.entryconfigure(1, state=tk.DISABLED)
 
     def enable_edit(self):
+        """Menu callback to enable edit sub-menu."""
         self.editmenu.entryconfigure(0, state=tk.NORMAL)
         self.editmenu.entryconfigure(1, state=tk.NORMAL)
 
     def pref_save_func(self):
+        """Menu callback to save preferences."""
         if ismethod(self.pref_save_func):
             self.pref_save_func()
 
     def pref_color_func(self):
+        """Menu callback to edit color preferences."""
         if ismethod(self.pref_color_func):
             self.pref_color_func()
 
     def update_editor(self):
+        """Menu callback to select the text editor."""
         global EDITOR
         EDITOR = self.editor_choice.get()
 
@@ -798,7 +864,8 @@ class MyTextWidget(ttk.LabelFrame):
         self.pack(side, padx, pady)
 
     def all_cores_btn_selected(self):
-        print("### self.cores_all.get() = %d" % self.cores_all.get())
+        """Callback to mark all known cores as selected"""
+        # print("### self.cores_all.get() = %d" % self.cores_all.get())
         if self.cores_all.get() == 1:
             # Select all cores.
             current_item = self.parent.item_widget.get_selection()
@@ -811,6 +878,11 @@ class MyTextWidget(ttk.LabelFrame):
             pass
 
     def core_btn_selected(self):
+        """
+        Callback to determine current list of selected cores.
+        Walks the buttons of all known cores and clears/sets the 'All cores'
+        button accordingly.
+        """
         mask = 0
         all_cores_set = True
         for i in range(self.num_cores):
@@ -831,6 +903,10 @@ class MyTextWidget(ttk.LabelFrame):
         # print('### core_btn_selected: mask = 0x%x' % mask)
 
     def pfc_cbox_selected(self, event):
+        """
+        Callback to set the Pass/Fail Criteria field in current item's state according
+        to the value just selected in the PFC ComboBox.
+        """
         current_choice = self.pfc_cbox.get()
         if not current_choice.startswith(
             vp_config.yaml_config["gui"]["pfc"]["default"]["label"]
@@ -846,6 +922,10 @@ class MyTextWidget(ttk.LabelFrame):
                 print("*** pfc_cbox_selected: Unknown value of PFC!")
 
     def testtype_cbox_selected(self, event):
+        """
+        Callback to set the Test Type field in current item's state according to the value
+        just selected in the Test Type ComboBox.
+        """
         current = self.testtype_cbox.get()
         if not current.startswith(
             vp_config.yaml_config["gui"]["test_type"]["default"]["label"]
@@ -861,6 +941,10 @@ class MyTextWidget(ttk.LabelFrame):
                 print("*** testtype_cbox_selected: Unknown value of Test Type!")
 
     def covmethod_cbox_selected(self, event):
+        """
+        Callback to set the Coverage Method field in current item's state according
+        to the value just selected in the PFC ComboBox.
+        """
         current = self.covmethod_cbox.get()
         if not current.startswith(
             vp_config.yaml_config["gui"]["cov_method"]["default"]["label"]
@@ -875,40 +959,8 @@ class MyTextWidget(ttk.LabelFrame):
             else:
                 print("*** covmethod_cbox_selected: Unknown value of Coverage Method!")
 
-    def pfc_cursor_shape(self, event):
-        global DEFAULT_CURSOR, SPECIAL_CURSOR
-        if self.pfc_label.cget("text") == " Implemented":
-            self.pfc_label.configure(cursor=SPECIAL_CURSOR)
-            self.pfc_label.configure(relief="raised")
-        else:
-            self.pfc_label.configure(cursor=DEFAULT_CURSOR)
-
-    def testtype_cursor_shape(self, event):
-        global DEFAULT_CURSOR, SPECIAL_CURSOR
-        if self.testtype_label.cget("text") == " Implemented":
-            self.testtype_label.configure(cursor=SPECIAL_CURSOR)
-            self.testtype_label.configure(relief="raised")
-        else:
-            self.testtype_label.configure(cursor=DEFAULT_CURSOR)
-
-    def covmethod_cursor_shape(self, event):
-        global DEFAULT_CURSOR, SPECIAL_CURSOR
-        if self.covmethod_label.cget("text") == " Implemented":
-            self.covmethod_label.configure(cursor=SPECIAL_CURSOR)
-            self.covmethod_label.configure(relief="raised")
-        else:
-            self.covmethod_label.configure(cursor=DEFAULT_CURSOR)
-
-    def pfc_label_flatten(self, event):
-        self.pfc_label.configure(relief="flat")
-
-    def testtype_label_flatten(self, event):
-        self.testtype_label.configure(relief="flat")
-
-    def covmethod_label_flatten(self, event):
-        self.covmethod_label.configure(relief="flat")
-
     def pack(self, side, padx, pady):
+        """Set the layout of the Item Description widget."""
         self.text.pack(side="top", padx=padx, pady=pady, fill="both", expand=True)
         self.text1.pack(side="top", padx=padx, pady=pady, fill="both", expand=True)
         self.text3.pack(side="top", padx=padx, pady=pady, fill="both", expand=True)
@@ -958,6 +1010,7 @@ class MyTextWidget(ttk.LabelFrame):
 
     # TODO FIXME: factorize
     def update_text(self, text_widget, mess):
+        """Callback to update the content of a text field."""
         text_widget.delete("1.0", tk.END)
         if mess == "":
             text_widget.insert("1.0", text_widget.cue_text)
@@ -969,28 +1022,44 @@ class MyTextWidget(ttk.LabelFrame):
         text_widget.edit_reset()  # flush undo stack
 
     def bsave_action(self):
+        """
+        Callback for the ButtonPressed action of the 'Save' button.
+        Removes the 'Save'/'Cancel' button frame once the action completes.
+        """
         if ismethod(self.bsavefunc):
             self.bsavefunc()  # execute external function before customization
             self.bframe.pack_forget()
 
     def bcancel_action(self):
+        """
+        Callback for the ButtonPressed action of the 'Cancel' button.
+        Removes the 'Save'/'Cancel' button frame once the action completes.
+        """
         if ismethod(self.bcancelfunc):
             self.bcancelfunc()  # execute external function before customization
             self.bframe.pack_forget()
 
     def button_pack(self):
+        """Add the 'Save'/'Cancel' button frame."""
         self.bframe.pack(side="bottom")
 
     def button_pack_forget(self):
+        """Remove the 'Save'/'Cancel' button frame."""
         self.bframe.pack_forget()
 
     def update_item_tag(self, in_text):
+        """
+        Update the value displayed in item Verification Tag field.
+        Re-enable editing to allow modification and disable it immediately
+        after the modification.
+        """
         self.text6.configure(state="normal")
         self.text6.delete("1.0", tk.END)
         self.text6.insert("1.0", in_text)
         self.text6.configure(state="disabled")
 
     def update_prop_tag(self, in_text):
+        """UPdate property tag: TO BE REMOVED."""
         # ZC: disable field
         # global LATEX_INSERT_MACRO
         # self.proptag.configure(state='normal')
@@ -1003,6 +1072,9 @@ class MyTextWidget(ttk.LabelFrame):
         pass
 
     def update_cores(self, cores):
+        """
+        Update the 'Applicable cores' check buttons according to the value specified
+        in CORES."""
         if cores == -1 or cores == (1 << self.num_cores) - 1:
             # -1 means verif item is applicable to all cores.
             # 'All-settable-bits-set" has the same meaning.
@@ -1020,6 +1092,7 @@ class MyTextWidget(ttk.LabelFrame):
                     self.core_button[i][1].set(0)
 
     def update_pfc(self, pfc_num):
+        """Update the Pass/Fail Criteria ComboBox according to the value of PFC_NUM."""
         self.pfc = pfc_num
         for i in range(self.num_pfcs):
             if pfc_num == self.pfc_entries[i]["value"]:
@@ -1029,6 +1102,7 @@ class MyTextWidget(ttk.LabelFrame):
         # ZC TODO FIXME Add safeguard in case we reach this point without setting the string value.
 
     def update_testtype(self, testtype_num):
+        """Update the Test Type ComboBox according to the value of TESTTYPE_NUM."""
         self.test_type = testtype_num
         for i in range(self.num_testtypes):
             if testtype_num == self.testtype_entries[i]["value"]:
@@ -1038,6 +1112,7 @@ class MyTextWidget(ttk.LabelFrame):
         # ZC TODO FIXME Add safeguard in case we reach this point without setting the label.
 
     def update_covmethod(self, covmethod_num):
+        """Update the Coverage Method ComboBox according to the value of TESTTYPE_NUM."""
         self.cov_method = covmethod_num
         for i in range(self.num_covmethods):
             if covmethod_num == self.covmethod_entries[i]["value"]:
@@ -1047,6 +1122,7 @@ class MyTextWidget(ttk.LabelFrame):
         # ZC TODO FIXME Add safeguard in case we reach this point without setting the label.
 
     def enable(self):
+        """Enable the modification of Item Description widget elements."""
         self.text.configure(state="normal")
         self.text1.configure(state="normal")
         self.text3.configure(state="normal")
@@ -1061,6 +1137,7 @@ class MyTextWidget(ttk.LabelFrame):
             self.core_button[i][0]["state"] = "normal"
 
     def disable(self):
+        """Disable the modification of Item Description widget elements."""
         self.text.configure(state="disabled")
         self.text1.configure(state="disabled")
         self.text3.configure(state="disabled")
@@ -1075,6 +1152,7 @@ class MyTextWidget(ttk.LabelFrame):
             self.core_button[i][0]["state"] = "disabled"
 
     def clean(self):
+        """Clear/reset all Item Description widget elements."""
         for widget in self.update_text_notify_list:
             self.update_text(widget, "")
         self.pfc = vp_config.yaml_config["gui"]["pfc"]["default"]["value"]
@@ -1090,14 +1168,17 @@ class MyTextWidget(ttk.LabelFrame):
 
     ## lock feature
     def lock(self):
+        """Lock Item Description widget."""
         self.disable()
         self.color_frame_text("disabled.TLabelframe")
 
     def unlock(self):
+        """Unlock Item Description widget."""
         self.enable()
         self.color_frame_text("enabled.TLabelframe")
 
     def color_frame_text(self, style):
+        """Apply styling to text fields in Item Description."""
         self.textframe.configure(style=style)
         self.text1frame.configure(style=style)
         self.pfc_frame.configure(style=style)
@@ -1106,6 +1187,7 @@ class MyTextWidget(ttk.LabelFrame):
 
     # Text
     def get_text_selection(self):
+        """Return the currently selected text in the Feature Description text pane."""
         text = ""
         try:
             text = self.text.selection_get()
@@ -1330,7 +1412,11 @@ class MyMain:
     ### Property Section
     def create_prop(self):
         global CUSTOM_NUM
-        """"""
+        """
+        Create a new Sub-feature.
+        The identifier may receive an optional prefix stored in CUSTOM_NUM and defined
+        by calling MyMenuWidget.set_prop_custom().
+        """
         current_ip_name = self.ip_widget.get_selection()
         field_name = vp_config.yaml_config["gui"]["property"]["label"]
         prop_name = tkinter.simpledialog.askstring(
@@ -2097,7 +2183,7 @@ class MyMain:
 
     def save_gui_history(self):
         """
-        Save current selection to history
+        Save current selection to history.
         """
         if self.prop_widget.get_index():
             prop_index = self.prop_widget.get_index()
@@ -2124,6 +2210,7 @@ class MyMain:
         self.gui_item_history = {}
 
     def unlock_db(self):
+        """Unlock the entire database (or set threof)."""
         for ip in list(self.ip_list.values()):
             ip.unlock_ip()
 
@@ -2131,20 +2218,20 @@ class MyMain:
         pass
 
     def clear_all_item_target_list(self):
-        """Clear rfu_dict -not needed to be saved- for output base format predictability"""
+        """
+        Clear rfu_dict -not needed to be saved- for output base format predictability.
+        Will be removed when persistent storage gets "minimum-change" behavior (order-
+        preserving saves, etc.)
+        """
         for ip in list(self.ip_list.values()):
             ip.rfu_dict = {}
-
-    # FIXME: Can go.
-    def get_spin_vip_config(self):
-        spin_vip_config = ("ALL", "VIP")
-        return spin_vip_config
 
     #####################################
     ##### DB INTERACTIION FUNCTIONS
 
     ##### Main GUI Creation
     def create_gui(self, theme):
+        """Set up the toplevel GUI content and look-and-feel."""
         self.personalization()
 
         # TOP Widget
@@ -2267,6 +2354,10 @@ class MyMain:
 #####################################
 ##### MAIN
 def __generate_option_parser():
+    """
+    Set up the option parser in separate method.
+    Cmdline options are the intended ways of controlling future extensions.
+    """
     parser = OptionParser()
     parser.add_option(
         "-d",
