@@ -88,6 +88,7 @@ class MyText(tk.Text):
         self.bind("<1>", lambda event: self.focus_set())
 
     def select_all(self, *args):
+        """Select the entire content of the text widget."""
         self.focus_set()
         self.tag_add("sel", "1.0", "end")
         return "break"
@@ -1224,39 +1225,51 @@ class MyMain:
     #####################################
     ### Binding Functions
     def im_up_ip(self, event):
+        """
+        Callback to recursively update the widgets of the current set of IPs (Features) according
+        to current selection and DB state.
+        """
         # Update Locked ip list in real time (can be eventually be disabled for perf)
         self.load_lock_ip()
         if not self.hold_state:
             self.update_property_widget()
 
     def im_dc_ip(self, event):
+        """Callback for a double-click of Button 1 on a Feature (IP)."""
         # No action for now.
         pass
 
     def im_up_ip_ctrl_lock(self, event):
+        """"Callback to lock the current IP (Feature)"""
         global LOCKED_IP_DICT
         self.lock_ip()
         self.ip_widget.gcolor(LOCKED_IP_DICT)
 
-    def im_copy_ip(self, event):
-        print(self.ip_widget.get_multiple_selection())
-
     ## Prop widget
     def im_up_prop(self, event):
+        """
+        Callback to update the Item Description widget according to currently selected
+        Property/Sub-feature and to current DB state.
+        """
         if not self.hold_state:
             self.update_item_widget()
 
     ## Item widget
     def im_up_item(self, event):
+        """
+        Callback to update the currently selected Item according to current DB state.
+        """
         if not self.hold_state:
             self.update_desc_widget()
 
     ## Desc widget
     def im_up_des_keypress(self, *args):
+        """
+        Callback to handle key *PRESS* actions in the Item Description widget.
+        Walks the list of all Text subwidgets that are marked as notifiable.
+        """
         for widget in self.desc_widget.keyevent_notify_list:
             cur_text = widget.get("1.0", tk.END)
-            # print('### keypress: Size of text in "text" field = %d, last char code = %d' % (len(cur_text), ord(cur_text[-1])))
-            # print('### keypress: Size of text in "text1" field = %d, last char code = %d' % (len(cur_text1), ord(cur_text1[-1])))
             # Check for typing if the field contains only the cue string.
             if (
                 widget["state"] == "normal"
@@ -1266,7 +1279,8 @@ class MyMain:
                 widget.delete("1.0", tk.END)
                 widget.configure(fg="black")
         current_item = self.item_widget.get_selection()
-        # Note it can be a int and not Ctrl key and item not locked
+        # Note it can be a int and not Ctrl key.
+        # Neither the current item nor the current IP/Feature should be locked by another user.
         if (
             current_item != ""
             and current_item != None
@@ -1280,6 +1294,10 @@ class MyMain:
                 self.freeze_all()
 
     def im_up_desc_keyup(self, *args):
+        """
+        Callback to handle key *RELEASE* actions in the Item Description widget.
+        Walks the list of all Text subwidgets that are marked as notifiable.
+        """
         for widget in self.desc_widget.keyevent_notify_list:
             cur_text = widget.get("1.0", tk.END)
             # print('### Size of text in "text" field = %d, last char code = %d' % (len(cur_text), ord(cur_text[-1])))
@@ -1295,6 +1313,9 @@ class MyMain:
                 widget.configure(fg=CUETEXT_COLOR)
 
     def im_up_des_ctrl_lock(self, *args):
+        """
+        Callback to invert the lock on the currently selected item in Item Description widget.
+        """
         current_item = self.item_widget.get_selection()
         if (
             current_item != ""
@@ -1306,6 +1327,10 @@ class MyMain:
             self.update_desc_widget()
 
     def im_up_des_tip_disp(self, *args):
+        """
+        Callback to display the Verification Goals of the item matching the selection
+        (treated as a verification tag) in a tooltip.
+        """
         text = self.desc_widget.get_text_selection()
         if text and Item.is_tag_valid(text):
             text = text + ":\n\n" + self.get_item_by_tag(text).description
@@ -1319,12 +1344,16 @@ class MyMain:
 
     ##Protect GUI exit through X button
     def main_exit_handler(self, *args):
+        """
+        Callback to protect from an intempestive exit from application.
+        """
         if tkinter.messagebox.askokcancel("Exit?", "Is Database Saved?\nReally Quit?"):
             self.top.quit()
 
     #####################################
     ### IP Section  #Note ip_list could be a class
     def create_ip(self):
+        """Callback to add a new Feature (IP) to the top-level Feature list."""
         field_name = vp_config.yaml_config["gui"]["ip"]["label"]
         ip_name = tkinter.simpledialog.askstring(
             "New " + field_name,
@@ -1345,12 +1374,16 @@ class MyMain:
             self.update_ip_widget()
 
     def delete_ip(self):
-        """get current IP Object and delete it"""
+        """Callback to get current IP Object and delete it"""
         del self.ip_list[self.ip_widget.get_selection()]
         # flush_gui_history()
         self.update_ip_widget()
 
     def update_ip_widget(self):
+        """
+        Callback to update current Feature (IP) widget according to the state
+        of the Feature (IP) list and the state of the DB.
+        """
         global LOCKED_IP_DICT
         # print "CHECK IP:",ip_list.keys()
         # sort IP by ip_num and put result into list_to_print
@@ -1380,6 +1413,7 @@ class MyMain:
             ] = "disabled"  # IP deletion button disabled if no IP
 
     def update_ip_name(self, old_name, new_name):
+        """Rename a Feature (IP)."""
         if self.ip_list[old_name]:
             self.ip_list[new_name] = self.ip_list.pop(old_name)
             self.ip_list[new_name].name = new_name
@@ -1387,6 +1421,7 @@ class MyMain:
             print("--- Warning: Ip not found")
 
     def need_lock_ip(self):
+        """Return True if user does not hold the lock on the current Feature (IP)."""
         global LOCKED_IP_DICT
         need_to_lock = False
         current_ip_name = self.ip_widget.get_selection()
@@ -1398,6 +1433,7 @@ class MyMain:
         return need_to_lock
 
     def is_locked_by_user(self, current_ip_name=""):
+        """Return True if hte current Feature (IP) is is locked by current user."""
         global LOCKED_IP_DICT
         is_lock = 0
         if current_ip_name in LOCKED_IP_DICT:
@@ -1406,17 +1442,21 @@ class MyMain:
         return is_lock
 
     def get_current_ip(self):
+        """
+        Return the Feature (IP) object corresponding to the current selection
+        in the Feature (IP) list widget.
+        """
         return self.ip_list[self.ip_widget.get_selection()]
 
     #####################################
     ### Property Section
     def create_prop(self):
-        global CUSTOM_NUM
         """
         Create a new Sub-feature.
         The identifier may receive an optional prefix stored in CUSTOM_NUM and defined
         by calling MyMenuWidget.set_prop_custom().
         """
+        global CUSTOM_NUM
         current_ip_name = self.ip_widget.get_selection()
         field_name = vp_config.yaml_config["gui"]["property"]["label"]
         prop_name = tkinter.simpledialog.askstring(
@@ -1438,7 +1478,8 @@ class MyMain:
             print("try again with a valid name")  ## to improve with popup
 
     def delete_prop(self):
-        """ "get current IP Object, and delete its current property"""
+        """Callback to delete the currently selected property of the Feature (IP) object
+        corresponding to the current selection in the Feature (IP) list widget."""
         current_ip_name = self.ip_widget.get_selection()
         current_prop_name = self.prop_widget.get_selection()
         self.ip_list[current_ip_name].del_property(current_prop_name)
@@ -1446,6 +1487,8 @@ class MyMain:
         self.update_property_widget()
 
     def update_property_widget(self):
+        """Callback to update the Sub-Feaure (Property) widget of the currently selected
+        Feature (IP)."""
         global LOCKED_IP_DICT
         # print "update_property_widget"
         current_ip_name = self.ip_widget.get_selection()
@@ -1483,6 +1526,7 @@ class MyMain:
         self.update_item_widget()
 
     def list_all_prop(self):
+        """Collect all Sub-Features (Properties) of the DVplan widget."""
         all_prop_list = []
         for ip in list(self.ip_list.values()):
             for prop in list(ip.prop_list.values()):
@@ -1490,6 +1534,10 @@ class MyMain:
         return all_prop_list
 
     def get_current_prop(self):
+        """
+        Return Sub-Feateure (Property) object correcponding to the entries currently
+        selected in Feature and Sub-Feature list widgets.
+        """
         return self.ip_list[self.ip_widget.get_selection()].prop_list[
             self.prop_widget.get_selection()
         ]
@@ -1497,7 +1545,10 @@ class MyMain:
     #####################################
     ### Item Section
     def create_item(self):
-        """"""
+        """
+        Create a new Item list entry under currently selected Sub-Feature (Property)
+        and update the Item Description according to the new state of the DB.
+        """
         cur_prop = self.get_current_prop()  # get current IP/Prop object
         # To figure out the effective index of the newly added item
         # in update_item_widget, we need the actual item.
@@ -1505,7 +1556,10 @@ class MyMain:
         self.update_item_widget(cur_item=new_item)
 
     def delete_item(self):
-        """"""
+        """
+        Delete the currently selected Verification Item and update the Item
+        Description widget according to the new state of the DB.
+        """
         current_item_name = self.item_widget.get_selection()
         self.get_current_prop().del_item(current_item_name)
         self.update_item_widget()
@@ -1625,7 +1679,11 @@ class MyMain:
         return all_item_list
 
     def duplicate_item(self, insert="no"):
-        """"""
+        """
+        Duplicate the currently selected Verification Item.
+        FIXME TODO: This operation can modify item tags and should be rewritten
+        so that it preserves the monotonicity of Verification Tags.
+        """
         confirm = "no"
         current_item_name = self.item_widget.get_selection()
         if current_item_name and not self.need_lock_ip():
@@ -1652,7 +1710,7 @@ class MyMain:
 
     def get_item_by_tag(self, tag):
         """
-        Return a item object from defined tag
+        Return an item object associated with the given Verification Tag.
         """
         match = Item()  # dummy item
         for ip in list(self.ip_list.values()):
@@ -1663,6 +1721,11 @@ class MyMain:
         return match
 
     def get_current_item(self):
+        """
+        Return the Item object corresponding to the current selection
+        in Feature (IP), Sub-Feature (Property) and Verification Item
+        list widgets.
+        """
         try:
             return (
                 self.ip_list[self.ip_widget.get_selection()]
@@ -1675,6 +1738,9 @@ class MyMain:
     #####################################
     ### Description Section
     def update_desc_widget(self):
+        """
+        Update the Item Description widget according to the current selection
+        of Verification Item and the current DB state."""
         global LOCKED_IP_DICT
         current_item_name = self.item_widget.get_selection()
         if (
@@ -1724,6 +1790,10 @@ class MyMain:
         self.save_gui_history()
 
     def desc_save(self):
+        """
+        Update text attributes of the currently selected Verification Item
+        with the values of text fields in the Item Description widget.
+        """
         # ZC: FIXME: Rework to hide internal structure of desc_widget.
         current_item = self.get_current_item()
         current_item.description = self.desc_widget.text.get(0.0, tk.END).rstrip()
@@ -1735,22 +1805,46 @@ class MyMain:
         self.unfreeze_all()
 
     def desc_cancel(self):
+        """
+        Reset the Item Desciption widget to the values currently in the DB.
+        TODO FIXME: This only works for DB fields updated when calling
+        MyMain.desc_save().  Fields which are updated directly upon click
+        or edit actions (button-based selectors, page/section numbers) will
+        have been modified already in the DB and thereore, they will not be
+        reset to previous values.
+        """
         self.update_desc_widget()  # reprint current item initial value
         self.unfreeze_all()
 
     def update_pfc(self):
+        """
+        Update Pass/Fail Criteria information in DB state and in GUI based
+        on internal state of Item Description widget.
+        """
         self.get_current_item().pfc = self.desc_widget.pfc.get()
         self.desc_widget.update_pfc(self.desc_widget.pfc.get())
 
     def update_testtype(self):
+        """
+        Update Test Type information in DB state and in GUI based
+        on internal state of Item Description widget.
+        """
         self.get_current_item().test_type = self.desc_widget.test_type.get()
         self.desc_widget.update_testtype(self.desc_widget.test_type.get())
 
     def update_covmethod(self):
+        """
+        Update Coverage Method information in DB state and in GUI based
+        on internal state of Item Description widget.
+        """
         self.get_current_item().cov_method = self.desc_widget.cov_method.get()
         self.desc_widget.update_covmethod(self.desc_widget.cov_method.get())
 
     def update_cores(self):
+        """
+        Update Applicable Cores information in DB state and in GUI based
+        on internal state of Item Description widget.
+        """
         if self.desc_widget.cores_all.get() == 1:
             mask = -1
         else:
@@ -1765,8 +1859,9 @@ class MyMain:
     ### Menu Save and load
 
     def get_db_gitrev(self):
-        """Get Git revision of database.
-        Return 'files not in sync!' if all files do NOT share same SHA1."""
+        """
+        Get snapshot of Git revision(s) of database as a dictionary of SHA1 hashes of DB files.
+        """
         # Check for Git coverage of all DB files.  Complain if
         # - some DB files are not under Git
         # - the files are not in sync (== belong in distinct commits.)
@@ -1806,6 +1901,9 @@ class MyMain:
         return sha1_dict
 
     def save_db(self, save_as="no"):
+        """
+        Save the internal state into a persistent database and generate a separate markdown
+        file for each individual database file."""
         pickle_ip_list = []
         confirm = ""
         if self.ip_list:
@@ -1829,7 +1927,7 @@ class MyMain:
                     print("INFO: Saved DB is not under Git versioning")
                     current_db_revision = self.db_git_rev
                 if self.db_git_rev == current_db_revision or save_as != "no":
-                    # change dict to list to improve predictability of asci output format for git versioning
+                    # change dict to list to improve predictability of ascii output format for git versioning
                     self.clear_all_item_target_list()
                     self.prep_db_export()
                     # Sort IPs by ip_num for added stability.
@@ -1932,11 +2030,15 @@ class MyMain:
         return confirm
 
     def save_db_wrapper(self, *args):
+        """Default wrapper for saving state in a persistent database."""
         self.save_db(save_as="no")
 
     def load_db(
         self,
     ):
+        """
+        Load a new database, saving the currently opened one first (if present).
+        Update the GUI with the newly loaded content."""
         need_to_load = ""
         if self.ip_list:
             need_to_load = tkinter.messagebox.askquestion(
@@ -1956,6 +2058,10 @@ class MyMain:
         return need_to_load
 
     def load_db_quiet(self):
+        """
+        Silently load a new database, dropping the currently loaded one if present.
+        Does not update the GUI.
+        """
         pickle_ip_list = []
         ip_num_next = 0
         if self.split_save:
@@ -2012,6 +2118,7 @@ class MyMain:
         self.db_git_rev = self.get_db_gitrev()
 
     def close_db(self):
+        """Close current database after asking for user confirmation."""
         confirm = "no"
         if self.ip_list:
             confirm = tkinter.messagebox.askquestion(
@@ -2022,23 +2129,27 @@ class MyMain:
         return confirm
 
     def close_db_quiet(self):
+        """Silently close current database, reset state and update GUI accordingly."""
         self.ip_list = {}
         Ip().__class__._ip_count = 0
         self.update_ip_widget()
 
     def prep_db_export(self):
+        """Pre-process internal state prior to saving the current database."""
         for ip in list(self.ip_list.values()):
             for prop in list(ip.prop_list.values()):
                 prop.prep_to_save()
             ip.prep_to_save()
 
     def prep_db_import(self):
+        """Post-process internal state after loading a new database."""
         for ip in list(self.ip_list.values()):
             for prop_elt in ip.rfu_list:
                 prop_elt[1].post_load()
             ip.post_load()
 
     def rename_ip(self):
+        """Rename a Feature (IP)."""
         initial_name = self.ip_widget.get_selection()
         new_name = tkinter.simpledialog.askstring(
             "Renaming IP",
@@ -2051,15 +2162,18 @@ class MyMain:
             self.update_ip_widget()
 
     def lock_ip(self):
+        """
+        Claim lock on a Feature (IP) if it is not locked by another user.
+        Warn if lock cannot be acquired due to someone else's holding the lock already."""
         global LOCKED_IP_DICT
         current_ip_name = self.ip_widget.get_selection()
-        print("### lock_ip: Locked IPs before: " + str(LOCKED_IP_DICT))
+        #print("### lock_ip: Locked Features before: " + str(LOCKED_IP_DICT))
         if current_ip_name in LOCKED_IP_DICT:
             if LOCKED_IP_DICT[current_ip_name] == pwd.getpwuid(os.getuid()).pw_name:
                 LOCKED_IP_DICT.pop(current_ip_name)
             else:
                 tkinter.messagebox.showwarning(
-                    "Warning", "Ip is locked by " + LOCKED_IP_DICT[current_ip_name]
+                    "Warning", "Feature is locked by " + LOCKED_IP_DICT[current_ip_name]
                 )
         else:
             LOCKED_IP_DICT[current_ip_name] = pwd.getpwuid(os.getuid()).pw_name
@@ -2071,18 +2185,19 @@ class MyMain:
             print(
                 "WARNING: Locked Ip file has not been loaded (exception '%s')" % str(e)
             )
-        print("### lock_ip: Locked IPs after: " + str(LOCKED_IP_DICT))
+        #print("### lock_ip: Locked Features after: " + str(LOCKED_IP_DICT))
 
     def lock_all_ip(self):
+        """Claim locks on all Features (IPs) """
         global LOCKED_IP_DICT
-        print("### lock_all_ip: Locked IPs before: " + str(LOCKED_IP_DICT))
+        #print("### lock_all_ip: Locked Features before: " + str(LOCKED_IP_DICT))
         for current_ip_name in self.ip_list:
             if current_ip_name in LOCKED_IP_DICT:
                 if LOCKED_IP_DICT[current_ip_name] == pwd.getpwuid(os.getuid()).pw_name:
                     LOCKED_IP_DICT.pop(current_ip_name)
                 else:
                     tkinter.messagebox.showwarning(
-                        "Warning", "Ip is locked by " + LOCKED_IP_DICT[current_ip_name]
+                        "Warning", "Feature is locked by " + LOCKED_IP_DICT[current_ip_name]
                     )
             else:
                 LOCKED_IP_DICT[current_ip_name] = pwd.getpwuid(os.getuid()).pw_name
@@ -2095,23 +2210,28 @@ class MyMain:
                     "WARNING: Locked Ip file has not been loaded (exception '%s')"
                     % str(e)
                 )
-        print("### lock_all_ip: Locked IPs after: " + str(LOCKED_IP_DICT))
+        #print("### lock_all_ip: Locked IPs after: " + str(LOCKED_IP_DICT))
 
     def load_lock_ip(self):
+        """Load lock file and update Feature coloring according to lock state it contains."""
         global LOCKED_IP_DICT
         LOCKED_IP_DICT = {}
-        print("### load_lock_ip: Locked IPs before: " + str(LOCKED_IP_DICT))
+        #print("### load_lock_ip: Locked IPs before: " + str(LOCKED_IP_DICT))
         try:
             with open(vp_config.LOCKED_IP_LOCATION, "rb") as input:
                 LOCKED_IP_DICT = pickle.load(input)
             self.ip_widget.gcolor(LOCKED_IP_DICT)
         except Exception as e:
             print(
-                "WARNING: Locked Ip file has not been loaded (exception '%s')" % str(e)
+                "WARNING: Lock file has not been loaded (exception '%s')" % str(e)
             )
-        print("### load_lock_ip: Locked IPs after: " + str(LOCKED_IP_DICT))
+        #print("### load_lock_ip: Locked Features after: " + str(LOCKED_IP_DICT))
 
     def update_menu_widget(self):
+        """
+        Enable/disable edit commands in menu widget according to the locking state of currently
+        selected item.
+        """
         global ip_list
         current_item_name = self.item_widget.get_selection()
         if current_item_name and not self.need_lock_ip():
@@ -2120,18 +2240,24 @@ class MyMain:
             self.verif_menu.disable_edit()
 
     def freeze_all(self):
+        """Prevent user changes to the state of all levels of widget hierarchy."""
         self.ip_widget.freeze()
         self.prop_widget.freeze()
         self.item_widget.freeze()
         self.hold_state = 1
 
     def unfreeze_all(self):
+        """Re-enable user changes to the state of all levels of widget hierarchy."""
         self.hold_state = 0
         self.ip_widget.unfreeze()
         self.prop_widget.unfreeze()
         self.item_widget.unfreeze()
 
     def export_new_order(self, reference_list):
+        """
+        Reorder elements in a list widget (either Feature/IP or Sub-Feature/Property list)
+        according to the supplied list.
+        """
         current_ip_name = self.ip_widget.get_selection()
         if self.ip_widget.need_to_reorder:
             for i, elt in enumerate(reference_list):
@@ -2172,6 +2298,7 @@ class MyMain:
                 pickle.dump(self.verif_menu.enable_image_panel.get(), output, 0)
 
     def change_gui_color(self):
+        """Change GUI background color."""
         global BG_COLOR
         BG_COLOR = tkinter.colorchooser.askcolor(color=BG_COLOR)[1]
         self.desc_widget.text.configure(bg=BG_COLOR)
@@ -2215,10 +2342,12 @@ class MyMain:
             ip.unlock_ip()
 
     def update_all_item_target_list(self):
+        """Update pre-/post-processing support data: nothing to do."""
         pass
 
     def clear_all_item_target_list(self):
         """
+        Clear pre-/post-procesising helper data.
         Clear rfu_dict -not needed to be saved- for output base format predictability.
         Will be removed when persistent storage gets "minimum-change" behavior (order-
         preserving saves, etc.)
