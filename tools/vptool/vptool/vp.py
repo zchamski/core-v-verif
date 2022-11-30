@@ -8,34 +8,31 @@
 # Original Author: Zbigniew Chamski (zbigniew.chamski@thalesgroup.com)
 #############################################################################
 
+import os, sys, pwd, glob, subprocess
+from collections import OrderedDict
+from inspect import ismethod
+import pickle
+from optparse import OptionParser
+
 import tkinter as tk
-from ttkthemes import themed_tk
 import tkinter.ttk as ttk
 import tkinter.simpledialog
 import tkinter.messagebox
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfilename
 import tkinter.colorchooser
-from inspect import ismethod
-import pickle
-from collections import OrderedDict
-
-# import cPickle as pickle
-# Configuration (env + Python + Yaml) is imported indirectly via vp_pack.
-from vp_pack import *
-import os, sys, pwd, glob, subprocess
-from optparse import OptionParser, Option
-from PIL import Image, ImageTk
-import shutil
-import hashlib
+from ttkthemes import themed_tk
+from PIL import ImageTk
 
 # PyYAML import: Use C backend (libyaml) if available.
-from yaml import load, dump
-
+from yaml import load
 try:
-    from yaml import CLoader as Loader, CDumper as Dumper
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import Loader, Dumper
+    from yaml import Loader
+
+# Configuration (env + Python + Yaml) is imported indirectly via vp_pack.
+from vp_pack import vp_config, Ip, Item
 
 global ip_list  # Dict Containing IPs->Prop->item. Eventually, it contains the whole DB
 global MASTER_LABEL_COLOR, SECONDARY_LABEL_COLOR, TERTIARY_LABEL_COLOR, BG_COLOR, LOCK_COLOR
