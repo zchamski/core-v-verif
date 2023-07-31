@@ -49,12 +49,13 @@ else
     # Build and install Spike (including extensions).
     mkdir -p build
     cd build
-    ../configure --enable-commitlog --prefix="$SPIKE_ROOT"
+    [ ! -f config.status ] && ../configure --enable-commitlog --prefix="$SPIKE_ROOT"
     make -j${NUM_JOBS}
     make install
     cd $CALLER_DIR
   else
     echo "Using Spike from cached directory '$SPIKE_ROOT'."
   fi
+  export SPIKE_INSTALL_DIR=$SPIKE_ROOT
 fi
 

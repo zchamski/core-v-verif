@@ -159,6 +159,11 @@ class uvma_rvfi_instr_seq_item_c#(int ILEN=DEFAULT_ILEN,
     */
    extern function bit [TRAP_DBG_CAUSE_WL-1:0] get_trap_debug_cause();
 
+
+   extern function st_rvfi seq2rvfi();
+
+   extern function void rvfi2seq(st_rvfi rvfi);
+
 endclass : uvma_rvfi_instr_seq_item_c
 
 `pragma protect begin
@@ -271,6 +276,103 @@ function bit [TRAP_DBG_CAUSE_WL-1:0] uvma_rvfi_instr_seq_item_c::get_trap_debug_
    return trap[TRAP_DBG_CAUSE_LSB +: TRAP_DBG_CAUSE_WL];
 
 endfunction : get_trap_debug_cause
+
+function st_rvfi uvma_rvfi_instr_seq_item_c::seq2rvfi();
+
+    st_rvfi rvfi;
+    rvfi.nret_id = nret_id;
+    rvfi.cycle_cnt = cycle_cnt;
+    rvfi.order = order;
+    rvfi.insn = insn;
+    rvfi.trap = trap;
+    rvfi.halt = halt;
+    rvfi.intr = intr;
+    rvfi.mode = mode;
+    rvfi.ixl = ixl;
+    rvfi.dbg = dbg;
+    rvfi.dbg_mode = dbg_mode;
+    rvfi.nmip = nmip;
+
+    rvfi.insn_interrupt = insn_interrupt;
+    rvfi.insn_interrupt_id = insn_interrupt_id;
+    rvfi.insn_bus_fault = insn_bus_fault;
+    rvfi.insn_nmi_store_fault = insn_nmi_store_fault;
+    rvfi.insn_nmi_load_fault = insn_nmi_load_fault;
+
+    rvfi.pc_rdata = pc_rdata;
+    rvfi.pc_wdata = pc_wdata;
+
+    rvfi.rs1_addr = rs1_addr;
+    rvfi.rs1_rdata = rs1_rdata;
+
+    rvfi.rs2_addr = rs2_addr;
+    rvfi.rs2_rdata = rs2_rdata;
+
+    rvfi.rs3_addr = rs3_addr;
+    rvfi.rs3_rdata = rs3_rdata;
+
+    rvfi.rd1_addr = rd1_addr;
+    rvfi.rd1_wdata = rd1_wdata;
+
+    rvfi.rd2_addr = rd2_addr;
+    rvfi.rd2_wdata = rd2_wdata;
+
+    rvfi.mem_addr = mem_addr;
+    rvfi.mem_rdata = mem_rdata;
+    rvfi.mem_rmask = mem_rmask;
+    rvfi.mem_wdata = mem_wdata;
+    rvfi.mem_wmask = mem_wmask;
+
+    return rvfi;
+
+endfunction : seq2rvfi
+
+function void uvma_rvfi_instr_seq_item_c::rvfi2seq(st_rvfi rvfi);
+
+    nret_id = rvfi.nret_id;
+    cycle_cnt = rvfi.cycle_cnt;
+    order = rvfi.order;
+    insn = rvfi.insn;
+    trap = rvfi.trap;
+    halt = rvfi.halt;
+    intr = rvfi.intr;
+    mode = rvfi.mode;
+    ixl = rvfi.ixl;
+    dbg = rvfi.dbg;
+    dbg_mode = rvfi.dbg_mode;
+    nmip = rvfi.nmip;
+
+    insn_interrupt = rvfi.insn_interrupt;
+    insn_interrupt_id = rvfi.insn_interrupt_id;
+    insn_bus_fault = rvfi.insn_bus_fault;
+    insn_nmi_store_fault = rvfi.insn_nmi_store_fault;
+    insn_nmi_load_fault = rvfi.insn_nmi_load_fault;
+
+    pc_rdata = rvfi.pc_rdata;
+    pc_wdata = rvfi.pc_wdata;
+
+    rs1_addr = rvfi.rs1_addr;
+    rs1_rdata = rvfi.rs1_rdata;
+
+    rs2_addr = rvfi.rs2_addr;
+    rs2_rdata = rvfi.rs2_rdata;
+
+    rs3_addr = rvfi.rs3_addr;
+    rs3_rdata = rvfi.rs3_rdata;
+
+    rd1_addr = rvfi.rd1_addr;
+    rd1_wdata = rvfi.rd1_wdata;
+
+    rd2_addr = rvfi.rd2_addr;
+    rd2_wdata = rvfi.rd2_wdata;
+
+    mem_addr = rvfi.mem_addr;
+    mem_rdata = rvfi.mem_rdata;
+    mem_rmask = rvfi.mem_rmask;
+    mem_wdata = rvfi.mem_wdata;
+    mem_wmask = rvfi.mem_wmask;
+
+endfunction : rvfi2seq
 
 `pragma protect end
 

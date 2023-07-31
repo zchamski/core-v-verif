@@ -24,5 +24,6 @@
 //     CVA6_TB_DIR as required.
 //
 ///////////////////////////////////////////////////////////////////////////////
-
+${CVA6_TB_DIR}/rvfi_tdefs.sv
 ${CVA6_REPO_DIR}/corev_apu/tb/common/spike.sv
+

@@ -37,6 +37,7 @@ class uvma_rvfi_cfg_c#(int ILEN=DEFAULT_ILEN,
 
    rand bit                      cov_model_enabled;
    rand bit                      trn_log_enabled;
+   rand bit                      scoreboard_enabled;
 
    // Number of instructions that may be retired in a single cycle
    // This number cannot be zero

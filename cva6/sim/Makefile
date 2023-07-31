@@ -122,11 +122,13 @@ spike:
 ###############################################################################
 # testharness specific commands, variables
 ###############################################################################
-vcs-testharness:
+vcs-testharness: elf_library
+	make -C $(path_var) work-dpi/ariane_dpi.so
 	make -C $(path_var) vcs_build target=$(target) defines=$(subst +define+,,$(isscomp_opts))$(if $(spike-tandem),SPIKE_TANDEM=1)
-	$(path_var)/work-vcs/simv $(if $(VERDI), -verdi -do $(path_var)/init_testharness.do,) +permissive -sv_lib $(path_var)/work-dpi/ariane_dpi \
+	$(path_var)/work-vcs/simv $(if $(VERDI), -verdi -do $(path_var)/init_testharness.do,) +permissive \
 	  +tohost_addr=$(shell $$RISCV/bin/${CV_SW_PREFIX}nm -B $(elf) | grep -w tohost | cut -d' ' -f1) \
-	  +PRELOAD=$(elf) +permissive-off ++$(elf) $(issrun_opts)
+	  +PRELOAD=$(elf) +elf_file=$(elf) +permissive-off ++$(elf) $(issrun_opts) $(if $(spike-tandem),-sv_lib $(SPIKE_INSTALL_DIR)/lib/libriscv) \
+	  -sv_lib $(CORE_V_VERIF)/vendor/elfloader/elfloader
 	$(tool_path)/spike-dasm --isa=$(variant) < ./trace_rvfi_hart_00.dasm > $(log)
 	grep $(isspostrun_opts) ./trace_rvfi_hart_00.dasm
 
@@ -220,12 +222,16 @@ dpi-library = $(CVA6_REPO_DIR)/work-dpi
 dpi_build:
 	$(MAKE) -C $(CVA6_REPO_DIR) $@
 
-vcs_uvm_comp: dpi_build
+elf_library:
+	$(MAKE) -C $(CORE_V_VERIF)/vendor/elfloader/
+
+
+vcs_uvm_comp: elf_library
 	@echo "[VCS] Building Model"
 	mkdir -p $(VCS_WORK_DIR)
 	cd $(VCS_WORK_DIR) && vcs $(ALL_UVM_FLAGS) \
 	  -f $(FLIST_CORE) -f $(FLIST_TB) \
-	  $(if $(spike-tandem), -f $(FLIST_COSIM)) \
+	  \
 	  -f $(CVA6_UVMT_DIR)/uvmt_cva6.flist \
 	  $(cov-comp-opt) +define+UNSUPPORTED_WITH+ $(isscomp_opts)\
 	  -top uvmt_cva6_tb
@@ -233,24 +239,18 @@ vcs_uvm_comp: dpi_build
 vcs_uvm_run:
 	$(if $(TRACE_FAST), unset VERDI_HOME ;) \
 	cd $(VCS_WORK_DIR)/ && \
-	$(VCS_WORK_DIR)/simv ${ALL_SIMV_UVM_FLAGS} \
+	$(VCS_WORK_DIR)/simv \
+	-sv_lib $(CORE_V_VERIF)/vendor/elfloader/elfloader \
+	-sv_lib $(SPIKE_INSTALL_DIR)/lib/libriscv \
+	${ALL_SIMV_UVM_FLAGS} \
 	++$(elf) \
-	+PRELOAD=$(elf) \
-	+tohost_addr=$(shell $$RISCV/bin/riscv-none-elf-nm -B $(elf) | grep -w tohost | cut -d' ' -f1) \
-	-sv_lib $(dpi-library)/ariane_dpi \
-	$(cov-run-opt) $(issrun_opts) && \
-	mv $(VCS_WORK_DIR)/trace_rvfi_hart_00.dasm $(CORE_V_VERIF)/cva6/sim/ && \
-	{ [ -z "`ls $(VCS_WORK_DIR)/*.$(SIMV_TRACE_EXTN)`" ] || \
-	  for i in `ls $(VCS_WORK_DIR)/*.$(SIMV_TRACE_EXTN)` ; do mv $$i $(CORE_V_VERIF)/cva6/sim/`basename $$i` ; done || \
-	  true ; }
+	+PRELOAD=$(elf) +elf_file=$(elf) \
+	+tohost_addr=$(shell $$RISCV/bin/$(CV_SW_PREFIX)nm -B $(elf) | grep -w tohost | cut -d' ' -f1) \
+	$(cov-run-opt) $(issrun_opts)
 
 vcs-uvm:
 	make vcs_uvm_comp
 	make vcs_uvm_run
-	$(tool_path)/spike-dasm --isa=$(variant) < ./trace_rvfi_hart_00.dasm > $(log)
-	grep $(isspostrun_opts) ./trace_rvfi_hart_00.dasm
-	[ -z "`ls *.$(SIMV_TRACE_EXTN)`" ] || \
-          for i in `ls *.$(SIMV_TRACE_EXTN)` ; do mv $$i `dirname $(log)`/`basename $(log) .log`.$(target).$$i ; done || true
 
 generate_cov_dash:
 	urg -dir $(VCS_WORK_DIR)/simv.vdb -group instcov_for_score

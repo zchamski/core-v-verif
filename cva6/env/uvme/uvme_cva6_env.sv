@@ -184,7 +184,7 @@ function void uvme_cva6_env_c::connect_phase(uvm_phase phase);
    super.connect_phase(phase);
 
    if (cfg.enabled) begin
-      if (cfg.scoreboarding_enabled) begin
+      if (cfg.scoreboard_enabled) begin
          connect_predictor ();
          connect_scoreboard();
       end
@@ -250,7 +250,7 @@ endfunction: create_agents
 
 function void uvme_cva6_env_c::create_env_components();
 
-   if (cfg.scoreboarding_enabled) begin
+   if (cfg.scoreboard_enabled) begin
       predictor = uvme_cva6_prd_c::type_id::create("predictor", this);
       sb        = uvme_cva6_sb_c ::type_id::create("sb"       , this);
    end
@@ -337,9 +337,7 @@ endtask
 function void uvme_cva6_env_c::connect_coverage_model();
 
    cvxif_agent.monitor.req_ap.connect(cov_model.cvxif_covg.req_item_fifo.analysis_export);
-   foreach (rvfi_agent.instr_mon_ap[i]) begin
-      rvfi_agent.instr_mon_ap[i].connect(isacov_agent.monitor.rvfi_instr_imp);
-   end
+   rvfi_agent.rvfi_core_ap.connect(isacov_agent.monitor.rvfi_instr_imp);
 
 endfunction: connect_coverage_model
 

@@ -170,6 +170,7 @@ pub_build_tools:
     # If a local build of Spike is requested, clean up build and installation directories.
     - '[ -n "$SPIKE_INSTALL_DIR" -a "$SPIKE_INSTALL_DIR" = "__local__" ] && rm -rf vendor/riscv/riscv-isa-sim/build'
     - '[ -n "$SPIKE_INSTALL_DIR" -a "$SPIKE_INSTALL_DIR" = "__local__" ] && rm -rf tools/spike'
+    - source $SYN_VCS_BASHRC
     # Create default directory corresponding to the artifact path.
     - mkdir -p tools/spike
     # Set up Spike, whether locally built or pre-installed.

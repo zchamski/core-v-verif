@@ -101,19 +101,19 @@ module cva6_tb_wrapper import uvmt_cva6_pkg::*; #(
     .end_of_test_o(tb_exit_o)
   ) ;
 
-`ifdef SPIKE_TANDEM
-    spike #(
-        .Size ( NUM_WORDS * 8 )
-    ) i_spike (
-        .clk_i,
-        .rst_ni,
-        .clint_tick_i ( 1'b0 ),  // FORNOW No RTC interrupts
-        .rvfi_i       ( rvfi )
-    );
-    initial begin
-        $display("Running binary in tandem mode");
-    end
-`endif
+//`ifdef SPIKE_TANDEM
+//    spike #(
+//        .Size ( NUM_WORDS * 8 )
+//    ) i_spike (
+//        .clk_i,
+//        .rst_ni,
+//        .clint_tick_i ( 1'b0 ),  // FORNOW No RTC interrupts
+//        .rvfi_i       ( rvfi )
+//    );
+//    initial begin
+//        $display("Running binary in tandem mode");
+//    end
+//`endif
 
 
   //----------------------------------------------------------------------------
@@ -260,12 +260,11 @@ module cva6_tb_wrapper import uvmt_cva6_pkg::*; #(
            longint address;
            longint len;
            byte buffer[];
-           void'(uvcl.get_arg_value("+PRELOAD=", binary));
+           void'(uvcl.get_arg_value("+elf_file=", binary));
 
            if (binary != "") begin
 
                void'(read_elf(binary));
-
                wait(clk_i);
 
                // while there are more sections to process
