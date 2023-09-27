@@ -26,8 +26,8 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 root-dir    := $(dir $(mkfile_path))
 
 ifndef CVA6_REPO_DIR
-$(warning must set CVA6_REPO_DIR to point at the root of CVA6 sources and CVA6_TB_DIR to point here -- doing it for you...)
-export CVA6_REPO_DIR = $(abspath $(root-dir)../../../core-v-cores/cva6/)
+$(warning UVM core-only testbench: must set CVA6_REPO_DIR to point at the root of CVA6 sources and CVA6_TB_DIR to point here -- doing it for you...)
+export CVA6_REPO_DIR = $(abspath $(root-dir)../../../../../)
 export CVA6_TB_DIR   = $(root-dir)
 endif
 
